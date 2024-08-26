@@ -1,8 +1,9 @@
 import dynamic from 'next/dynamic';
-import { Backdrop, CircularProgress, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { useState } from 'react';
 import Filters from '@/components/Filters';
 import ResponsiveAppBar from '@/components/ResponsiveAppBar';
+import styles from '../styles/filters.module.css';
 
 const DynamicMapComponent = dynamic(() => import('@/components/Map'), {
   ssr: false // Desactiva la renderización del lado del servidor para este componente
@@ -14,7 +15,8 @@ export default function Home() {
   const [isoName, setIsoName] = useState<string>('');
 
   return (
-    <>
+
+    <Box className={styles.fadeIn}>
       <ResponsiveAppBar />
       <>
         <Grid container>
@@ -29,6 +31,7 @@ export default function Home() {
           </Grid>
         </Grid>
       </>
-    </>
+    </Box>
+
   );
 }
