@@ -40,7 +40,8 @@ const Map = ({ isoName, countryName }: any) => {
   useEffect(() => {
     const newFilteredCountries = countries.filter((item) => {
       return (
-        item.Country.includes(countryName) && item.ISO_Code.includes(isoName)
+        item.Country.toLowerCase().includes(countryName.toLowerCase()) &&
+        item.ISO_Code.toLowerCase().includes(isoName.toLowerCase())
       )
     })
 
