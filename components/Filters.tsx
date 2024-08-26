@@ -21,7 +21,7 @@ const Filters = ({
               }}
               value={countryName}
             />
-          </Grid>
+          </Grid>         
           <Grid item xs={10}>
             <TextField
               label='Código ISO'
@@ -31,12 +31,7 @@ const Filters = ({
               }}
               value={isoName}
             />
-          </Grid>
-         {/*  <Grid item xs={10}>
-            <TextField label='Región'
-              fullWidth
-            />
-          </Grid> */}
+          </Grid>  
           <Button variant="contained" className='mt-4'
             onClick={() => {
               setCountryName('');

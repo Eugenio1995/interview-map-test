@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { Box, Grid, Modal, Typography } from '@mui/material';
+import { Backdrop, Box, CircularProgress, Grid, Modal, Typography } from '@mui/material';
 import { getCountries } from '@/services';
 import { CountryResponse } from '@/interfaces';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
@@ -12,6 +12,7 @@ const Map = ({ isoName, countryName }: any) => {
   const [filteredCountries, setFilteredCountries] = useState<CountryResponse[]>([]);
   const [selectedInfo, setSelectedInfo] = useState<any>({});
   const [openModal, setOpenModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleMarkerClick = (info: any) => {
     setSelectedInfo(info);
@@ -22,13 +23,18 @@ const Map = ({ isoName, countryName }: any) => {
   }
 
   useEffect(() => {
-    const fetchCountries = async () => {
-      const data = await getCountries();
-      setCountries(data);
-      setFilteredCountries(data);
-    };
-
-    fetchCountries();
+    try {
+      const fetchCountries = async () => {
+        const data = await getCountries();
+        setCountries(data);
+        setFilteredCountries(data);
+      };
+      fetchCountries();
+      setIsLoading(false);
+    } catch (error) {
+      console.log("Error fetching countries", error);
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -56,34 +62,44 @@ const Map = ({ isoName, countryName }: any) => {
 
   return (
     <>
-      <MapContainer center={[0, -68.0000]} zoom={3} style={{ height: "100vh", width: "100%" }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {filteredCountries.map((location, index) => (
-          <Marker
-            key={index}
-            position={[location.Latitude, location.Longitude]}
-            icon={L.icon({
-              iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-              shadowSize: [51, 41]
-            })}
-            eventHandlers={{
-              click: () => {
-                handleMarkerClick(location)
-                setOpenModal(true);
-              }
-            }}
-          >
-            <Popup>{location.Country}</Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      {isLoading ? (
+        <Backdrop
+          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={isLoading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      ) : (
+        <MapContainer center={[0, -68.0000]} zoom={3} style={{ height: "100vh", width: "100%" }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {filteredCountries.map((location, index) => (
+            <Marker
+              key={index}
+              position={[location.Latitude, location.Longitude]}
+              icon={L.icon({
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                shadowSize: [51, 41]
+              })}
+              eventHandlers={{
+                click: () => {
+                  handleMarkerClick(location)
+                  setOpenModal(true);
+                }
+              }}
+            >
+              <Popup>{location.Country}</Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      )}
+
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -131,7 +147,7 @@ const Map = ({ isoName, countryName }: any) => {
               <Typography id="modal-modal-description" color={'black'} textAlign={'center'}>
                 {selectedInfo.emoji}
               </Typography>
-            </Grid>      
+            </Grid>
           </Grid>
         </Box>
       </Modal>
